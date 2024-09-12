@@ -3,7 +3,7 @@ import torchvision
 from PIL import ImageEnhance
 from fastapi import FastAPI
 from pydantic import BaseModel
-
+from fastapi.middleware.cors import CORSMiddleware
 import util
 
 app = FastAPI()
@@ -14,6 +14,14 @@ img_height = 30
 label_data = util.load_labels("./assets/LabelData.json")
 model_boundary = torch.load("./model/captcha-bound.pt", map_location=torch.device("cpu"))
 model_text = torch.load("./model/captcha-text.pt", map_location=torch.device("cpu"))
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex='.*?',
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class Item(BaseModel):
@@ -43,4 +51,5 @@ async def captcha_recognize(item: Item):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
